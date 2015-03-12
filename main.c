@@ -185,13 +185,7 @@ int main() {
 		if(!((*KEYS) & KEY_START)) {
 			for(y = 0; y < 160; y++) {
 				for(x = 0; x < 241; x++) {
-					if(x == 240) {
-						pSaveMemory[241 * y + x] = 0x0a;
-					} else if(getImagePixel(x, y) == black) {
-						pSaveMemory[241 * y + x] = 0x23;
-					} else {
-						pSaveMemory[241 * y + x] = 0x20;
-					}
+					if(x == 240) pSaveMemory[241 * y + x] = 0x0a; else pSaveMemory[241 * y + x] = getImagePixel(x, y) == black ? 0x23 : 0x20;
 				}
 			}
 			char endstr[] = "Saved with Sketch beta 1\n";
