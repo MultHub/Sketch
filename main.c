@@ -1,8 +1,10 @@
 /* basic macros */
+#include <unistd.h>
 #define RGB16(r,g,b) ((r)+(g<<5)+(b<<10))
 #include <keypad.h>
 #define GAMEPAK_RAM ((u8*)0x0E000000)
 #define xyToNum(x,y) ((x)+(y)*240)
+#define keydown(k) !((*KEYS) & k)
 
 /* probably bad to do this as a macro */
 #define paintChar(x, y, _char) {\
@@ -128,10 +130,9 @@ int main() {
 	if(pSaveMemory[65535] == 0xFF) pSaveMemory[65535] = 8;
 	gridSize = pSaveMemory[65535];
 	char x, y;
+	int i, j;
 	int sketchx = 0;
 	int sketchy = 0;
-	int i;
-	int j;
 	paintChar(112, 76, chr_SK);
 	paintChar(120, 76, chr_CH);
 	*(unsigned long*)0x4000000 = 0x403; /* mode 3: +bg2 */
@@ -148,41 +149,38 @@ int main() {
 	int draw = 0;
 	while(1) {
 		draw = 0;
-		if(!((*KEYS) & KEY_UP)) if(sketchy > 0) {
+		if(keydown(KEY_UP)) if(sketchy > 0) {
 			drawPixel(sketchx, sketchy);
 			sketchy--;
 			draw = 1;
 		}
-		if(!((*KEYS) & KEY_DOWN)) if(sketchy < 159) {
+		if(keydown(KEY_DOWN)) if(sketchy < 159) {
 			drawPixel(sketchx, sketchy);
 			sketchy++;
 			draw = 1;
 		}
-		if(!((*KEYS) & KEY_LEFT)) if(sketchx > 0) {
+		if(keydown(KEY_LEFT)) if(sketchx > 0) {
 			drawPixel(sketchx, sketchy);
 			sketchx--;
 			draw = 1;
 		}
-		if(!((*KEYS) & KEY_RIGHT)) if(sketchx < 239) {
+		if(keydown(KEY_RIGHT)) if(sketchx < 239) {
 			drawPixel(sketchx, sketchy);
 			sketchx++;
 			draw = 1;
 		}
-		if(!((*KEYS) & KEY_A)) {
+		if(keydown(KEY_A)) {
 			setImagePixel(sketchx, sketchy, black);
 			drawPixel(sketchx, sketchy);
 		}
-		if(!((*KEYS) & KEY_B)) {
+		if(keydown(KEY_B)) {
 			setImagePixel(sketchx, sketchy, white);
 			drawPixel(sketchx, sketchy);
 		}
-		if(!((*KEYS) & KEY_SELECT)) clear();
-		if(getImagePixel(sketchx, sketchy) == black) {
-			dot(sketchx, sketchy, red);
-		} else {
-			dot(sketchx, sketchy, darkred);
-		}
-		if(!((*KEYS) & KEY_START)) {
+		if(keydown(KEY_SELECT)) clear();
+		if(getImagePixel(sketchx, sketchy) == black) dot(sketchx, sketchy, red);
+		else dot(sketchx, sketchy, darkred);
+		if(keydown(KEY_START)) {
 			for(y = 0; y < 160; y++) {
 				for(x = 0; x < 241; x++) {
 					if(x == 240) pSaveMemory[241 * y + x] = 0x0a; else pSaveMemory[241 * y + x] = getImagePixel(x, y) == black ? 0x23 : 0x20;
@@ -197,6 +195,6 @@ int main() {
 				pSaveMemory[65535 - (strlen(endstr2) - x)] = endstr2[x];
 			}
 		}
-		if(draw == 1) for(i = 0; i < 17500; i++);
+		if(draw == 1) usleep(25000);
 	}
 }
