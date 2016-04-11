@@ -1,5 +1,4 @@
 /* basic macros */
-#include <unistd.h>
 #define RGB16(r,g,b) ((r)+(g<<5)+(b<<10))
 #include <keypad.h>
 #define GAMEPAK_RAM ((u8*)0x0E000000)
@@ -195,6 +194,6 @@ int main() {
 				pSaveMemory[65535 - (strlen(endstr2) - x)] = endstr2[x];
 			}
 		}
-		if(draw == 1) usleep(25000);
+		if(draw == 1) for(i = 0; i < 17500; i++);
 	}
 }
